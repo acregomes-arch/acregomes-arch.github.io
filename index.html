@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-  <head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Registro de Presença</title>
@@ -697,8 +696,6 @@ select.att-select option[value="INJUSTIFICADA"] { background: #2e0000; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('WY7yVE4iSaitOIdJg');</script>
 </head>
 <body>
 
@@ -715,12 +712,14 @@ select.att-select option[value="INJUSTIFICADA"] { background: #2e0000; }
     <button class="tab-btn" onclick="switchTab('presenca')">✅ Presença</button>
     <button class="tab-btn" onclick="switchTab('colaboradores')">👥 Colaboradores</button>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2)">
-    <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:var(--text3);transition:background 0.3s"></div>
-    <span id="online-text">Conectando...</span>
-  </div>
-  <div class="topbar-date" id="topbar-date"></div>
-  <button onclick="testEmailJS()"
+ <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2)">
+  <div id="online-dot" style="width:7px;height:7px;border-radius:50%;background:var(--text3);transition:background 0.3s"></div>
+  <span id="online-text">Conectando...</span>
+</div>
+<div class="topbar-date" id="topbar-date"></div>
+</div>
+
+<div class="main-container">
 
   <!-- DASHBOARD VIEW -->
   <div class="view active" id="view-dashboard">
@@ -1923,18 +1922,8 @@ function init() {
   document.getElementById('col-status').value = 'ATIVO';
   document.getElementById('loading-overlay').classList.add('show');
   listenFirebase();
-  agendarEnvio10h();
 }
 window.addEventListener('DOMContentLoaded', init);
-const EMAILJS_SERVICE_ID='service_6ryctem',EMAILJS_TEMPLATE_ID='template_j2mx3sf';
-const LIDER_EMAILS={'CARLOS':'carlos.apereira@mercadolivre.com','GUILHERME':'guilherme.mrodrigue@mercadolivre.com','LEANDRO':'leandro.bsiqueira@mercadolivre.com','NATHALIA':'nathalia.hsantos@mercadolivre.com','VICTOR':'victor.lobato@mercadolivre.com'};
-const SUPERVISOR_EMAIL='celso.neves@mercadolivre.com';
-function getYesterday(){const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().split('T')[0];}
-function getInjustificadasMeli(date){return allData.filter(r=>isMeli(r)&&getAtt(r,date).toUpperCase()==='INJUSTIFICADA');}
-async function sendEmailJS(to,p){return emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_email:to,lider_nome:p.lider,colaborador:p.colaborador,data:p.data,cargo:p.cargo,ciclo:p.ciclo,rota:p.rota});}
-async function enviarEmailsInjustificadas(date){const faltas=getInjustificadasMeli(date);if(!faltas.length){notify('Nenhuma falta injustificada MELI em '+formatDate(date),'error');return{enviados:0,erros:0,total:0};}let enviados=0,erros=0;for(const r of faltas){const ln=(r['LÍDER']||'').trim().toUpperCase();const le=LIDER_EMAILS[ln];const p={lider:r['LÍDER']||'N/A',colaborador:r['COLABORADOR']||'N/A',data:formatDate(date),cargo:r['CARGO']||'N/A',ciclo:r['CICLO']||'N/A',rota:r['ROTA']||'N/A'};try{if(le){await sendEmailJS(le,p);enviados++;}await sendEmailJS(SUPERVISOR_EMAIL,p);enviados++;}catch(err){console.error(err);erros++;}}return{enviados,erros,total:faltas.length};}
-async function testEmailJS(){const btn=event.currentTarget;btn.disabled=true;btn.textContent='⏳ Enviando...';const date=getYesterday();notify('Verificando faltas de '+formatDate(date)+'...');try{const r=await enviarEmailsInjustificadas(date);if(r.total>0){r.erros>0?notify('⚠ '+r.enviados+' enviados, '+r.erros+' com erro.','error'):notify('✓ '+r.enviados+' emails enviados para '+r.total+' falta(s)!');}}catch(err){notify('Erro: '+err.message,'error');}btn.textContent='✉ Testar Email';btn.disabled=false;}
-function agendarEnvio10h(){const now=new Date(),target=new Date();target.setHours(10,0,0,0);if(now>=target)target.setDate(target.getDate()+1);const ms=target-now;console.log('📧 Emails agendados para '+target.toLocaleString('pt-BR'));setTimeout(async()=>{try{const r=await enviarEmailsInjustificadas(getYesterday());if(r&&r.enviados>0)notify('📧 '+r.enviados+' emails automáticos enviados!');}catch(e){console.error(e);}setInterval(async()=>{try{await enviarEmailsInjustificadas(getYesterday());}catch(e){console.error(e);}},86400000);},ms);}
 </script>
 </body>
 </html>
